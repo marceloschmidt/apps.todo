@@ -11,12 +11,12 @@ export class ExecuteViewClosedHandler {
         private readonly http: IHttp,
         private readonly modify: IModify,
         private readonly persistence: IPersistence,
-    ) {}
+    ) { }
 
     public async run(context: UIKitViewCloseInteractionContext) {
         const { view } = context.getInteractionData();
         switch (view.id) {
-            case ModalsEnum.COMPLETED_TASKS_VIEW:
+            case ModalsEnum.COMPLETED_TASKS_VIEW || ModalsEnum.DELETE_TASKS_VIEW:
                 const modal = await toDoModal({ modify: this.modify, read: this.read, persistence: this.persistence, uikitcontext: context });
                 await this.modify.getUiController().updateModalView(modal, { triggerId: context.getInteractionData().triggerId as string }, context.getInteractionData().user);
                 break;
