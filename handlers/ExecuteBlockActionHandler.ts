@@ -57,7 +57,7 @@ export class ExecuteBlockActionHandler {
                 tasks[value].complete = false;
                 await persistRoomTasks(this.persistence, roomId, tasks);
 
-                const notification = `@${user.username} has undone task "${tasks[value].task}. Type /todo to view the list of tasks.`;
+                const notification = `@${user.username} has undone task "${tasks[value].task}". Type /todo to view the list of tasks.`;
                 await sendMessage({ app: this.app, read: this.read, modify: this.modify, room: await this.read.getRoomReader().getById(roomId) as IRoom, text: notification });
 
                 const completedModal = await completedTasksModal({ modify: this.modify, read: this.read, context });
@@ -76,7 +76,7 @@ export class ExecuteBlockActionHandler {
             case ModalsEnum.TASK_DELETE_ACTION: {
                 const tasks = await getRoomTasks(this.read.getPersistenceReader(), roomId);
 
-                const notification = `@${user.username} has deleted task "${tasks[value].task}. Type /todo to view the list of tasks.`;
+                const notification = `@${user.username} has deleted task "${tasks[value].task}". Type /todo to view the list of tasks.`;
 
                 tasks.splice(value, 1);
                 await persistRoomTasks(this.persistence, roomId, tasks);
