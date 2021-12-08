@@ -112,10 +112,10 @@ export async function editTasksModal({
     return await modifyTasksModal(
         { modify, read, context },
         {
-            viewId: ModalsEnum.DELETE_TASKS_VIEW,
-            modalTitle: ModalsEnum.DELETE_TASKS_TITLE,
-            modifyButtonActionId: ModalsEnum.TASK_DELETE_ACTION,
-            modifyButtonLabel: ModalsEnum.TASK_DELETE_LABEL,
+            viewId: ModalsEnum.EDIT_TASKS_VIEW,
+            modalTitle: ModalsEnum.EDIT_TASKS_TITLE,
+            modifyButtonActionId: ModalsEnum.TASK_EDIT_ACTION,
+            modifyButtonLabel: ModalsEnum.TASK_EDIT_LABEL,
         },
         TASKS.INCOMPLETE
     );
