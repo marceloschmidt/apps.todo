@@ -6,7 +6,7 @@ import { ModalsEnum } from '../enum/Modals';
 import { sendMessage } from '../lib/message';
 import { getRoomTasks, getUIData, persistRoomTasks } from '../lib/persistence';
 import { addTaskModal } from '../modals/addTaskModal';
-import { completedTasksModal } from '../modals/completedTasksModal';
+import { completedTasksModal, deleteTasksModal } from '../modals/modifyTasksModal';
 import { toDoModal } from '../modals/toDoModal';
 
 export class ExecuteBlockActionHandler {
@@ -16,7 +16,7 @@ export class ExecuteBlockActionHandler {
         private readonly http: IHttp,
         private readonly modify: IModify,
         private readonly persistence: IPersistence,
-    ) {}
+    ) { }
 
     public async run(context: UIKitBlockInteractionContext): Promise<IUIKitResponse> {
         const contextData = context.getInteractionData();
@@ -45,7 +45,7 @@ export class ExecuteBlockActionHandler {
                 tasks[value].completedAt = new Date();
                 await persistRoomTasks(this.persistence, roomId, tasks);
 
-                const notification = `@${ user.username } has completed the task "${ tasks[value].task }". Type /todo to view the list of tasks.`;
+                const notification = `@${user.username} has completed the task "${tasks[value].task}". Type /todo to view the list of tasks.`;
                 await sendMessage({ app: this.app, read: this.read, modify: this.modify, room: await this.read.getRoomReader().getById(roomId) as IRoom, text: notification });
 
                 const modal = await toDoModal({ modify: this.modify, read: this.read, persistence: this.persistence, uikitcontext: context });
@@ -53,21 +53,56 @@ export class ExecuteBlockActionHandler {
                 break;
             }
             case ModalsEnum.TASK_UNDO_ACTION: {
-                    const tasks = await getRoomTasks(this.read.getPersistenceReader(), roomId);
-                    tasks[value].complete = false;
-                    await persistRoomTasks(this.persistence, roomId, tasks);
+                const tasks = await getRoomTasks(this.read.getPersistenceReader(), roomId);
+                tasks[value].complete = false;
+                await persistRoomTasks(this.persistence, roomId, tasks);
 
-                    const notification = `@${ user.username } has undone task "${ tasks[value].task }. Type /todo to view the list of tasks.`;
-                    await sendMessage({ app: this.app, read: this.read, modify: this.modify, room: await this.read.getRoomReader().getById(roomId) as IRoom, text: notification });
+                const notification = `@${user.username} has undone task "${tasks[value].task}. Type /todo to view the list of tasks.`;
+                await sendMessage({ app: this.app, read: this.read, modify: this.modify, room: await this.read.getRoomReader().getById(roomId) as IRoom, text: notification });
 
-                    const completedModal = await completedTasksModal({ modify: this.modify, read: this.read, context });
-                    await this.modify.getUiController().updateModalView(completedModal, { triggerId: context.getInteractionData().triggerId }, context.getInteractionData().user);
-                    break;
+                const completedModal = await completedTasksModal({ modify: this.modify, read: this.read, context });
+                await this.modify.getUiController().updateModalView(completedModal, { triggerId: context.getInteractionData().triggerId }, context.getInteractionData().user);
+                break;
             }
             case ModalsEnum.REFRESH_ACTION: {
-                    const modal = await toDoModal({ modify: this.modify, read: this.read, persistence: this.persistence, uikitcontext: context });
-                    await this.modify.getUiController().updateModalView(modal, { triggerId: context.getInteractionData().triggerId }, context.getInteractionData().user);
-                    break;
+                const modal = await toDoModal({ modify: this.modify, read: this.read, persistence: this.persistence, uikitcontext: context });
+                await this.modify.getUiController().updateModalView(modal, { triggerId: context.getInteractionData().triggerId }, context.getInteractionData().user);
+                break;
+            }
+            case ModalsEnum.DELETE_TASKS_ACTION: {
+                const deleteModal = await deleteTasksModal({ modify: this.modify, read: this.read, context });
+                return context.getInteractionResponder().openModalViewResponse(deleteModal);
+            }
+            case ModalsEnum.TASK_DELETE_ACTION: {
+                const tasks = await getRoomTasks(this.read.getPersistenceReader(), roomId);
+
+                const notification = `@${user.username} has deleted task "${tasks[value].task}. Type /todo to view the list of tasks.`;
+
+                tasks.splice(value, 1);
+                await persistRoomTasks(this.persistence, roomId, tasks);
+
+                await sendMessage({
+                    app: this.app,
+                    read: this.read,
+                    modify: this.modify,
+                    room: (await this.read
+                        .getRoomReader()
+                        .getById(roomId)) as IRoom,
+                    text: notification,
+                });
+
+                const deleteModal = await deleteTasksModal({
+                    modify: this.modify,
+                    read: this.read,
+                    context,
+                });
+                await this.modify
+                    .getUiController()
+                    .updateModalView(
+                        deleteModal,
+                        { triggerId: context.getInteractionData().triggerId },
+                        context.getInteractionData().user
+                    );
             }
         }
         return context.getInteractionResponder().successResponse();

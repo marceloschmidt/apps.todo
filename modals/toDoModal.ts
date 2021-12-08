@@ -9,7 +9,7 @@ import { SlashCommandContext } from '@rocket.chat/apps-engine/definition/slashco
 import { UIKitBlockInteractionContext, UIKitInteractionContext } from '@rocket.chat/apps-engine/definition/uikit';
 
 export async function toDoModal({ modify, read, persistence, slashcommandcontext, uikitcontext }: { modify: IModify, read: IRead, persistence: IPersistence, slashcommandcontext?: SlashCommandContext, uikitcontext?: UIKitInteractionContext }): Promise<IUIKitModalViewParam> {
-	const viewId = ModalsEnum.TODO_VIEW;
+    const viewId = ModalsEnum.TODO_VIEW;
 
     const block = modify.getCreator().getBlockBuilder();
 
@@ -45,7 +45,7 @@ export async function toDoModal({ modify, read, persistence, slashcommandcontext
                         value: taskId
                     })
                 });
-                block.addContextBlock({ elements: [ block.newPlainTextObject(`\Created by: @${task.createdBy.username} on ${task.createdAt.toISOString().split('T')[0] }`) ] });
+                block.addContextBlock({ elements: [block.newPlainTextObject(`\Created by: @${task.createdBy.username} on ${task.createdAt.toISOString().split('T')[0]}`)] });
             }
         }
     }
@@ -60,6 +60,14 @@ export async function toDoModal({ modify, read, persistence, slashcommandcontext
                 value: room?.id
             }),
             block.newButtonElement({
+                actionId: ModalsEnum.DELETE_TASKS_ACTION,
+                text: {
+                    text: ModalsEnum.DELETE_TASKS_LABEL,
+                    type: TextObjectType.PLAINTEXT,
+                },
+                value: room?.id,
+            }),
+            block.newButtonElement({
                 actionId: ModalsEnum.COMPLETED_TASKS_ACTION,
                 text: { text: ModalsEnum.COMPLETED_TASKS_LABEL, type: TextObjectType.PLAINTEXT },
                 value: room?.id
@@ -72,18 +80,18 @@ export async function toDoModal({ modify, read, persistence, slashcommandcontext
         ]
     });
 
-	return {
-		id: viewId,
-		title: {
-			type: TextObjectType.PLAINTEXT,
-			text: AppEnum.DEFAULT_TITLE,
-		},
-		close: block.newButtonElement({
-			text: {
-				type: TextObjectType.PLAINTEXT,
-				text: 'Close',
-			},
-		}),
-		blocks: block.getBlocks(),
-	};
+    return {
+        id: viewId,
+        title: {
+            type: TextObjectType.PLAINTEXT,
+            text: AppEnum.DEFAULT_TITLE,
+        },
+        close: block.newButtonElement({
+            text: {
+                type: TextObjectType.PLAINTEXT,
+                text: 'Close',
+            },
+        }),
+        blocks: block.getBlocks(),
+    };
 }

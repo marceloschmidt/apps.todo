@@ -22,4 +22,12 @@ export enum ModalsEnum {
     TASK_INFO_VIEW = 'task-info-view',
     REFRESH_ACTION = 'refresh',
     REFRESH_LABEL = 'Refresh',
+
+    // DELETE stuff
+    DELETE_TASKS_TITLE = "Delete Tasks",
+    DELETE_TASKS_VIEW = "delete-tasks-view",
+    TASK_DELETE_ACTION = "delete",
+    TASK_DELETE_LABEL = "Delete",
+    DELETE_TASKS_ACTION = "delete-tasks",
+    DELETE_TASKS_LABEL = "Delete tasks"
 }
